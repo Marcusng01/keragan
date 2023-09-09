@@ -70,7 +70,7 @@ class GAN():
         self.discriminator.compile(loss='binary_crossentropy', optimizer=self.optimizer, metrics=['accuracy'])
         self.discriminator.trainable = False
         
-        z = keras.models.Input(shape=(self.latent_dim,))
+        z = keras.layers.Input(shape=(self.latent_dim,))
         img = self.generator(z)
         valid = self.discriminator(img)
 
@@ -149,7 +149,7 @@ class DCGAN(GAN):
         model.add(keras.layers.Conv2D(self.channels, kernel_size=3, padding="same"))
         model.add(keras.layers.Activation("tanh"))
 
-        noise = keras.models.Input(shape=(self.latent_dim,))
+        noise = keras.layers.Input(shape=(self.latent_dim,))
         img = model(noise)
 
         return keras.models.Model(noise, img)
@@ -175,7 +175,7 @@ class DCGAN(GAN):
         model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(1, activation='sigmoid'))
 
-        img = keras.models.Input(shape=self.img_shape)
+        img = keras.layers.Input(shape=self.img_shape)
         validity = model(img)
 
         return keras.models.Model(img, validity)
