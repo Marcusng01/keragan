@@ -8,7 +8,7 @@ import numpy as np
 
 class GAN():
 
-    def __init__(self,width,height,model_path=None,samples_path=None,optimizer=None,lr=None,latent_dim=None, *args, **kwargs):
+    def __init__(self,width,height,model_path=None,samples_path=None,optimizer=None,lr=None,latent_dim=None):
         self.width = width
         self.height = height
         self.channels = 3
