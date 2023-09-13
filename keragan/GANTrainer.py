@@ -23,10 +23,11 @@ class GANTrainer():
         if self.gan.height!=self.data.height or self.gan.width!=self.data.width:
             raise "Image size of GAN and ImageDataset should be the same"
 
-    def train(self,callback=None):
+
+    def train(self, callback=None, noise_stddev=0.01):  # Add noise_stddev parameter
         # ones = label for real images
         # zeros = label for fake images
-        ones = np.ones((self.batch_size, 1)) 
+        ones = np.ones((self.batch_size, 1))
         zeros = np.zeros((self.batch_size, 1))
 
         # create some noise to track AI's progression
@@ -37,31 +38,33 @@ class GANTrainer():
 
             # Select a random batch of images in dataset
             imgs = self.data.get_batch(self.batch_size)
-            
+            # Add noise to discriminator inputs
+            noisy_imgs = imgs + noise_stddev * np.random.normal(0, 1, imgs.shape)
+
             # Sample noise and generate a batch of new images
             noise = np.random.normal(0, 1, (self.batch_size, self.gan.latent_dim))
-            gen_imgs = self.gan.generator.predict(noise)   
+            gen_imgs = self.gan.generator.predict(noise)
 
-            # Train the discriminator with generated images and real images
-            d_loss_r = self.gan.discriminator.train_on_batch(imgs, ones)
+            # Train the discriminator with generated images and real noisy images
+            d_loss_r = self.gan.discriminator.train_on_batch(noisy_imgs, ones)
             d_loss_f = self.gan.discriminator.train_on_batch(gen_imgs, zeros)
-            d_loss = np.add(d_loss_r , d_loss_f)*0.5
+            d_loss = np.add(d_loss_r, d_loss_f) * 0.5
 
             # Trains the generator to fool the discriminator
             g_loss = self.gan.combined.train_on_batch(noise, ones)
 
             #print loss and accuracy of both trains
             if ep % self.print_interval == 0:
-                print ("%d D loss: %f, acc.: %.2f%% G loss: %f" % (self.gan.epoch, d_loss[0], 100*d_loss[1], g_loss))
+                print ("%d D loss: %f, acc.: %.2f%% G loss: %f" % (self.gan.epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
             if ep % self.save_img_interval == 0 and self.no_samples:
                 print("Saving images...", end='')
                 self.gan.write_sample_images(self.noise_pred)
                 print("done")
-            
+
             if ep % self.save_interval == 0:
                 self.gan.save()
-            
+
             if callback:
                 callback(self)
 
