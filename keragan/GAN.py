@@ -79,8 +79,7 @@ class GAN():
         valid = self.discriminator(img)
 
         self.combined = keras.models.Model(z, valid) 
-        #Since the generator already has its own optimizer, the combined model's optimizer is no longer needed
-        #self.combined.compile(loss='mse', optimizer=self.optimizer)
+        self.combined.compile(loss='mse', optimizer=self.optimizer)
 
     @staticmethod
     def create_from_generator_model(model):
