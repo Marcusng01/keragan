@@ -155,22 +155,26 @@ class DCGAN(GAN):
         return keras.models.Model(noise, img)
 
 
+
     def create_discriminator(self):
         
         model = keras.models.Sequential()
 
-        i,x = 0,32
-        while x<=2*self.width:
-            if i==0:
+        i, x = 0, 32
+        while x <= 2 * self.width:
+            if i == 0:
                 model.add(keras.layers.Conv2D(x, kernel_size=3, strides=1, input_shape=self.img_shape, padding="same"))
             else:
-                model.add(keras.layers.Conv2D(x, kernel_size=3, strides=1, padding="same"))
-            model.add(keras.layers.AveragePooling2D())
-            model.add(keras.layers.BatchNormalization(momentum=0.8))
-            model.add(keras.layers.LeakyReLU(alpha=0.2))
-            model.add(keras.layers.Dropout(0.3))
-            i+=1
-            x*=2
+                if i == 1:  # Remove the second hidden layer
+                    pass  # Do nothing to skip adding the second hidden layer
+                else:
+                    model.add(keras.layers.Conv2D(x, kernel_size=3, strides=1, padding="same"))
+                model.add(keras.layers.AveragePooling2D())
+                model.add(keras.layers.BatchNormalization(momentum=0.8))
+                model.add(keras.layers.LeakyReLU(alpha=0.2))
+                model.add(keras.layers.Dropout(0.3))
+            i += 1
+            x *= 2
 
         model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(1, activation='sigmoid'))
