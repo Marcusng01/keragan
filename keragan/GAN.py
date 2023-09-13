@@ -67,9 +67,7 @@ class GAN():
             self.generator = self.create_generator()
             self.epoch = 0
             
-        # Set the learning rate for the generator to be double that of the discriminator
-        generator_lr = 2.0 * self.lr
-        self.generator.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=generator_lr, beta_1=0.5, beta_2=0.999, epsilon=1e-7, decay=0.0, amsgrad=False))
+
 
         self.discriminator.compile(loss='mse', optimizer=self.optimizer, metrics=['accuracy'])
         self.discriminator.trainable = False
@@ -77,9 +75,11 @@ class GAN():
         z = keras.layers.Input(shape=(self.latent_dim,))
         img = self.generator(z)
         valid = self.discriminator(img)
-
+        
+        # Set the learning rate for the generator to be double that of the discriminator
+        generator_lr = 2.0 * self.lr
         self.combined = keras.models.Model(z, valid) 
-        self.combined.compile(loss='mse', optimizer=self.optimizer)
+        self.combined.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=generator_lr, beta_1=0.5, beta_2=0.999, epsilon=1e-7, decay=0.0, amsgrad=False))
 
     @staticmethod
     def create_from_generator_model(model):
