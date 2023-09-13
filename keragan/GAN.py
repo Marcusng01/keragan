@@ -67,7 +67,7 @@ class GAN():
             self.generator = self.create_generator()
             self.epoch = 0
 
-        self.discriminator.compile(loss='binary_crossentropy', optimizer=self.optimizer, metrics=['accuracy'])
+        self.discriminator.compile(loss='mse', optimizer=self.optimizer, metrics=['accuracy'])
         self.discriminator.trainable = False
         
         z = keras.layers.Input(shape=(self.latent_dim,))
@@ -75,7 +75,7 @@ class GAN():
         valid = self.discriminator(img)
 
         self.combined = keras.models.Model(z, valid) 
-        self.combined.compile(loss='binary_crossentropy', optimizer=self.optimizer)
+        self.combined.compile(loss='mse', optimizer=self.optimizer)
 
     @staticmethod
     def create_from_generator_model(model):
@@ -173,7 +173,7 @@ class DCGAN(GAN):
             x*=2
 
         model.add(keras.layers.Flatten())
-        model.add(keras.layers.Dense(1, activation='sigmoid'))
+        model.add(keras.layers.Dense(1, activation=None))
 
         img = keras.layers.Input(shape=self.img_shape)
         validity = model(img)
